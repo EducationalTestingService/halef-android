@@ -45,12 +45,31 @@ public class DemoActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        permissionCheck();
-
-        // Bind to SipClientService
-        Intent i = new Intent(this, SipClientService.class);
-        startService(i);
-        bindService(i, mSipClientServiceConnection, Context.BIND_AUTO_CREATE);
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(this, Manifest.permission.USE_SIP) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(this, Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(this, Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED)) {
+            // We need the permissions. Wait for callback before we go on.
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{ Manifest.permission.INTERNET,
+                            Manifest.permission.USE_SIP,
+                            Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.WAKE_LOCK,
+                            Manifest.permission.VIBRATE,
+                            Manifest.permission.ACCESS_WIFI_STATE,
+                            Manifest.permission.MODIFY_AUDIO_SETTINGS},
+                    HALEF_PERMISSIONS);
+        } else {
+            // We have the permissions. Go ahead.
+            Intent i = new Intent(this, SipClientService.class);
+            startService(i);
+            bindService(i, mSipClientServiceConnection, Context.BIND_AUTO_CREATE);
+            callButton.setEnabled(true);
+        }
     }
 
     @Override
@@ -108,28 +127,6 @@ public class DemoActivity extends AppCompatActivity {
         }
     };
 
-    private void permissionCheck() {
-        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
-                || (ContextCompat.checkSelfPermission(this, Manifest.permission.USE_SIP) != PackageManager.PERMISSION_GRANTED)
-                || (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                || (ContextCompat.checkSelfPermission(this, Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
-                || (ContextCompat.checkSelfPermission(this, Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED)
-                || (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED)
-                || (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{ Manifest.permission.INTERNET,
-                                  Manifest.permission.USE_SIP,
-                                  Manifest.permission.RECORD_AUDIO,
-                                  Manifest.permission.WAKE_LOCK,
-                                  Manifest.permission.VIBRATE,
-                                  Manifest.permission.ACCESS_WIFI_STATE,
-                                  Manifest.permission.MODIFY_AUDIO_SETTINGS},
-                    HALEF_PERMISSIONS);
-        } else {
-            callButton.setEnabled(true);
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -142,9 +139,13 @@ public class DemoActivity extends AppCompatActivity {
                         && grantResults[4] == PackageManager.PERMISSION_GRANTED
                         && grantResults[5] == PackageManager.PERMISSION_GRANTED
                         && grantResults[6] == PackageManager.PERMISSION_GRANTED) {
+                    // We got the permissions. Go ahead.
+                    Intent i = new Intent(this, SipClientService.class);
+                    startService(i);
+                    bindService(i, mSipClientServiceConnection, Context.BIND_AUTO_CREATE);
                     callButton.setEnabled(true);
                 } else {
-                    Log.d(TAG, "We don't have the required permissions");
+                    Log.d(TAG, "User didn't give use the permissions. What should we do?");
                 }
             }
         }
