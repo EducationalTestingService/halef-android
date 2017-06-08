@@ -5,6 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -12,14 +14,20 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import org.ets.halefsipclientandroid.SipClientService;
 import org.ets.halefsipclientandroid.SipClientService.LocalBinder;
 
-public class DemoActivity extends AppCompatActivity {
+
+public class DemoActivity extends AppCompatActivity implements SipClientService.Callbacks {
 
     private static final String TAG = "DemoActivity";
 
@@ -28,17 +36,35 @@ public class DemoActivity extends AppCompatActivity {
     private boolean mSipClientBound;
 
     private Button callButton, hangupButton;
+    private TextView registerStatusText, callStatusText, feedbackArea, debugArea;
+    private RadioGroup rgItems;
+    public static final String PREFS_NAME = "HalefPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
+        // Stop screen sleep
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
         callButton = (Button) findViewById(R.id.btnCall);
         hangupButton = (Button) findViewById(R.id.btnHangup);
-
+        registerStatusText = (TextView) findViewById(R.id.registerStatusText);
+        callStatusText = (TextView) findViewById(R.id.callStatusText);
+        feedbackArea = (TextView) findViewById(R.id.feedbackArea);
+        debugArea = (TextView) findViewById(R.id.debugArea);
+        rgItems = (RadioGroup) findViewById(R.id.rgItems);
         callButton.setEnabled(false);
         hangupButton.setEnabled(false);
+
+        debugArea.setMovementMethod(new ScrollingMovementMethod());
+        feedbackArea.setMovementMethod(new ScrollingMovementMethod());
+
+        // Restore preferences
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        int selectedApplication = settings.getInt("selectedApplication", R.id.rbCoffeeShop);
+        rgItems.check(selectedApplication);
     }
 
     @Override
@@ -77,15 +103,33 @@ public class DemoActivity extends AppCompatActivity {
         super.onStop();
         // Unbind from SipClientService
         if (mSipClientBound) {
+            hangup();
             mSipClientService.unregister();
             unbindService(mSipClientServiceConnection);
             mSipClientBound = false;
         }
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("selectedApplication", rgItems.getCheckedRadioButtonId());
+
+        // Commit the edits!
+        editor.commit();
+
     }
 
     public void onCall(View v){
         if (mSipClientBound) {
-            int status = mSipClientService.call("7804");
+            int selectedItem = rgItems.getCheckedRadioButtonId();
+            String extension = "";
+            if ( selectedItem == R.id.rbCoffeeShop){
+                extension = "7801";
+            } else {
+                // Interview test
+                extension = "7804";
+            }
+            int status = mSipClientService.call(extension);
             callButton.setEnabled(false);
             hangupButton.setEnabled(true);
             Log.d(TAG, "Call status:  " + Integer.toString(status));
@@ -93,6 +137,10 @@ public class DemoActivity extends AppCompatActivity {
     }
 
     public void onHangup(View v){
+        hangup();
+    }
+
+    private void hangup(){
         if (mSipClientBound) {
             mSipClientService.hangUp();
             hangupButton.setEnabled(false);
@@ -116,6 +164,7 @@ public class DemoActivity extends AppCompatActivity {
             String asteriskDomain = getResources().getString(R.string.asteriskDomain);
             String asteriskUsername = getResources().getString(R.string.asteriskUsername);
             String asteriskPassword = getResources().getString(R.string.asteriskPassword);
+            mSipClientService.registerActivity(DemoActivity.this);
             mSipClientService.init(asteriskDomain, asteriskUsername, asteriskPassword);
             mSipClientService.register();
         }
@@ -151,4 +200,77 @@ public class DemoActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+
+    public void feedbackMessage(final String message){
+        Log.d(TAG, message);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                feedbackArea.append("\n" + message);
+            }
+        });
+    }
+
+    public void debugMessage(final String message){
+        Log.d(TAG, message);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                debugArea.append("\n" + message);
+            }
+        });
+    }
+
+    @Override
+    public void callStatus(int status){
+        switch(status) {
+            case SipClientService.CALL_INPROGRESS:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callStatusText.setText(getResources().getString(R.string.call_inprogress));
+                    }
+                });
+                break;
+            case SipClientService.CALL_ENDED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callStatusText.setText(getResources().getString(R.string.call_ended));
+                    }
+                });
+                break;
+        }
+    }
+
+    @Override
+    public void registerStatus(int status) {
+        switch(status) {
+            case SipClientService.REGISTERING:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        registerStatusText.setText(getResources().getString(R.string.registering));
+                    }
+                });
+                break;
+            case SipClientService.REGISTERED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        registerStatusText.setText(getResources().getString(R.string.ready));
+                    }
+                });
+                break;
+            case SipClientService.REGISTERING_FAILED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        registerStatusText.setText(getResources().getString(R.string.registering_failed));
+                    }
+                });
+                break;
+        }
+    }
 }

@@ -2,4 +2,14 @@
     <string name="app_name">halef</string>
     <string name="call">Call</string>
     <string name="hangup">Hangup</string>
+    <string name="ready">Ready</string>
+    <string name="registering">Registering...</string>
+    <string name="registering_failed">Registering failed</string>
+    <string name="call_inprogress">Call in progress</string>
+    <string name="call_ended">Call ended</string>
+    <string name="loading">Loading...</string>
+    <string name="feedback">Feedback</string>
+    <string name="coffee_shop">Coffee Shop</string>
+    <string name="interview">Interview</string>
+    <string name="debug">Debug</string>
 </resources>

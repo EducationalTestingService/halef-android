@@ -28,10 +28,100 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnCall"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/btnHangup"
-        android:layout_toStartOf="@+id/btnHangup"
         android:layout_marginRight="46dp"
         android:layout_marginEnd="46dp"
-        android:onClick="onCall"/>
+        android:onClick="onCall"
+        android:layout_above="@+id/registerStatusText"
+        android:layout_toLeftOf="@+id/btnHangup"
+        android:layout_toStartOf="@+id/btnHangup"
+        android:layout_marginBottom="104dp" />
+
+    <TextView
+        android:id="@+id/callStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:id="@+id/registerStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="@string/loading" />
+
+    <TextView
+        android:id="@+id/feedbackArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="--CURRENTLY NOT IN USE--"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:maxLines="4"
+        android:scrollbars = "vertical"
+        android:gravity="bottom"/>
+
+    <TextView
+        android:id="@+id/feedbackLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/feedbackArea"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="@string/feedback"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+    <RadioGroup
+        android:id="@+id/rgItems"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/feedbackLabel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <RadioButton
+            android:id="@+id/rbInterview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/interview" />
+
+        <RadioButton
+            android:id="@+id/rbCoffeeShop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/coffee_shop" />
+
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/debugLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/debug"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/debugArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/debugLabel"
+        android:maxLines="4"
+        android:scrollbars = "vertical"
+        android:gravity="bottom"/>
+
+
 </RelativeLayout>
