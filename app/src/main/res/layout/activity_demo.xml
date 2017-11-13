@@ -99,6 +99,13 @@
             android:layout_weight="1"
             android:text="@string/coffee_shop" />
 
+        <RadioButton
+            android:id="@+id/rbGrammarTasks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/grammarTasks" />
+
 
     </RadioGroup>
 

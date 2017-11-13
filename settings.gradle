@@ -1,1 +1,1 @@
-include ':app', ':halefsipclientandroid'
+include ':app', ':halefsdk'

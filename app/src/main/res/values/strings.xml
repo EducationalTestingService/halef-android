@@ -12,4 +12,5 @@
     <string name="coffee_shop">Coffee Shop</string>
     <string name="interview">Interview</string>
     <string name="debug">Debug</string>
+    <string name="grammarTasks">Grammar Tasks</string>
 </resources>

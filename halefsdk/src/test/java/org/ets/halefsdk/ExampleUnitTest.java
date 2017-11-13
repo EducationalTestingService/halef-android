@@ -1,4 +1,4 @@
-package org.ets.halefsipclientandroid;
+package org.ets.halefsdk;
 
 import org.junit.Test;
 

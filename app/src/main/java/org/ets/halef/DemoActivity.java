@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,12 +18,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import org.ets.halefsipclientandroid.SipClientService;
-import org.ets.halefsipclientandroid.SipClientService.LocalBinder;
+import org.ets.halefsdk.SipClientService;
+import org.ets.halefsdk.SipClientService.LocalBinder;
 
 
 public class DemoActivity extends AppCompatActivity implements SipClientService.Callbacks {
@@ -123,11 +121,12 @@ public class DemoActivity extends AppCompatActivity implements SipClientService.
         if (mSipClientBound) {
             int selectedItem = rgItems.getCheckedRadioButtonId();
             String extension = "";
-            if ( selectedItem == R.id.rbCoffeeShop){
+            if (selectedItem == R.id.rbCoffeeShop){
                 extension = "7801";
-            } else {
-                // Interview test
+            } else if (selectedItem == R.id.rbInterview){
                 extension = "7804";
+            } else if (selectedItem == R.id.rbGrammarTasks){
+                extension = "7725";
             }
             int status = mSipClientService.call(extension);
             callButton.setEnabled(false);
@@ -165,8 +164,7 @@ public class DemoActivity extends AppCompatActivity implements SipClientService.
             String asteriskUsername = getResources().getString(R.string.asteriskUsername);
             String asteriskPassword = getResources().getString(R.string.asteriskPassword);
             mSipClientService.registerActivity(DemoActivity.this);
-            mSipClientService.init(asteriskDomain, asteriskUsername, asteriskPassword);
-            mSipClientService.register();
+            mSipClientService.register(asteriskDomain, asteriskUsername, asteriskPassword);
         }
 
         @Override
